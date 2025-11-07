@@ -41,7 +41,7 @@ print("Centroids:\n", centroids)
 # Smooth decision plane (k=2): (x - m)·n = 0 with n = c2 - c1, m = (c1 + c2)/2
 # Render with a 2D grid (grid_res x grid_res) over two axes; solve the third.
 # -----------------------
-out_fig = "kmeans3d_with_decision_plane.png"
+out_fig = "K_Means_3D_decision_boundary.png"
 grid_res = 50  # resolution per axis for rendering the plane mesh
 c1, c2 = centroids[0], centroids[1]
 n = c2 - c1
