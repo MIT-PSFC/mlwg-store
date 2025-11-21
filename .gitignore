@@ -1,0 +1,40 @@
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.env/
+.venv/
+env/
+venv/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# Test and coverage files
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
