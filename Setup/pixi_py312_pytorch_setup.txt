@@ -1,5 +1,8 @@
 # Things in <> can be replaced with any name of your choice
 
+# If you wish to use GPUs, follow additional steps labelled with ~
+#   These are only intended to work with NVIDIA with CUDA 12.4.1, so make sure that is installed
+
 # Install pixi (Linux)
 cd
 curl -fsSL https://pixi.sh/install.sh | bash
@@ -10,6 +13,9 @@ curl -fsSL https://pixi.sh/install.sh | bash
 cd <work_area>
 pixi init <env_name>
 cd <env_name>
+
+# ~ Add package channels to generated environment file, pixi.toml
+channels = ["nvidia/label/12.4.1", "conda-forge", "pytorch"]
 
 # Install recommended libraries
 pixi add git
@@ -24,10 +30,18 @@ pixi add h5py
 pixi add netcdf4
 pixi add pytables
 pixi add scikit-learn
-pixi add pytorch
-pixi add matplotlib
 pixi add ipython
 pixi add ipykernel
+
+# If using CPUs
+pixi add pytorch
+pixi add matplotlib
+
+# ~ If using GPUs
+pixi add 'cuda-toolkit>=12.4.1,<12.4.2'
+pixi add pytorch-gpu
+pixi add cudnn
+pixi add --pypi matplolib
 
 # To enter environment, make sure you are in some subdirectory of <env_name> and use:
 pixi shell
