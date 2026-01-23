@@ -1,0 +1,17 @@
+[project]
+name = "mlwg-optuna-tutorial"
+version = "0.1.0"
+description = "Tutorial for using Optuna, MIT-PSFC Machine Learning Work Group"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "greenlet>=3.3.0",
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.7",
+    "nbformat>=5.10.4",
+    "optuna==4.7.0",
+    "pandas>=2.3.3",
+    "plotly>=6.3.1",
+    "scikit-learn>=1.7.2",
+    "torch>=2.9.1",
+]
