@@ -31,17 +31,21 @@ pixi add netcdf4
 pixi add pytables
 pixi add scikit-learn
 pixi add ipython
+pixi add greenlet
+pixi add nbformat
 pixi add ipykernel
 
 # If using CPUs
 pixi add pytorch
 pixi add matplotlib
+pixi add plotly
 
 # ~ If using GPUs
 pixi add 'cuda-toolkit>=12.4.1,<12.4.2'
 pixi add pytorch-gpu
 pixi add cudnn
-pixi add --pypi matplolib
+pixi add --pypi matplotlib
+pixi add --pypi plotly
 
 # To enter environment, make sure you are in some subdirectory of <env_name> and use:
 pixi shell
@@ -51,3 +55,8 @@ exit
 
 # When in environment, you can run any of our tutorials with:
 python <script_name>
+
+
+
+### Additional instructions for tutorial 2
+pixi add optuna
