@@ -38,3 +38,7 @@ pip-delete-this-directory.txt
 
 # Jupyter Notebook files
 .ipynb_checkpoints/
+
+# Custom generated artifacts
+Tutorial_1/Neural_Operator/Default_Results/
+Tutorial_1/Neural_Operator/Results/
