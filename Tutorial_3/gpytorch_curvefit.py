@@ -20,16 +20,22 @@ class ExampleGPModel(gpytorch.models.ExactGP):
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
 
+# Setup input data
 input_vars = ['x']
 output_vars = ['y']
+output_error_vars = ['yerr']
 df = pd.read_hdf('sample_data_1d_curvefit.h5', key='/data')
 
 train_x = df[input_vars].to_numpy()
 train_y = df[output_vars].to_numpy().flatten()
-train_ye = df['yerr'].to_numpy().flatten()
+train_ye = df[output_error_vars].to_numpy().flatten()
 tensor_train_x = torch.tensor(train_x)
 tensor_train_y = torch.tensor(train_y)
 tensor_train_ye = torch.tensor(train_ye)
+
+# Define vector to evaluate fit
+fit_x = np.linspace(0.5, 1.1, 101)
+tensor_fit_x = torch.autograd.Variable(torch.tensor(fit_x), requires_grad=True)
 
 likelihood = gpytorch.likelihoods.GaussianLikelihood()
 model = ExampleGPModel(tensor_train_x, tensor_train_y, likelihood)
@@ -68,9 +74,6 @@ score = r2_score(score_y, train_y, multioutput='raw_values')
 print(f'R2 score: {score}')
 
 
-fit_x = np.linspace(0.5, 1.1, 101)
-#tensor_fit_x = torch.tensor(fit_x)
-tensor_fit_x = torch.autograd.Variable(torch.tensor(fit_x), requires_grad=True)
 fit_posterior = likelihood(model(tensor_fit_x))
 fit_y = fit_posterior.mean.detach().numpy()
 fit_ye = np.sqrt(fit_posterior.variance.detach().numpy())
@@ -89,10 +92,10 @@ save_file1 = plot_save_directory / 'gpytorch_1d_fit_test.png'
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
 plot_train_ye = plot_sigma * train_ye
-ax1.errorbar(train_x, train_y, yerr=plot_train_ye, ls='', marker='.', color='k')
-ax1.plot(fit_x, fit_y, color='r')
 plot_fit_y_lower = fit_y - plot_sigma * fit_ye
 plot_fit_y_upper = fit_y + plot_sigma * fit_ye
+ax1.errorbar(train_x, train_y, yerr=plot_train_ye, ls='', marker='.', color='k')
+ax1.plot(fit_x, fit_y, color='r')
 ax1.fill_between(fit_x, plot_fit_y_lower, plot_fit_y_upper, facecolor='r', edgecolor='None', alpha=0.2)
 ax1.set_xlim(0.5, 1.1)
 fig1.savefig(save_file1)
@@ -101,10 +104,10 @@ fig1.savefig(save_file1)
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'gpytorch_1d_derivative_test.png'
 fig2 = plt.figure(2)
-ax2 = fig2.add_subplot(111)
-ax2.plot(fit_x, fit_dy, color='r')
 plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
 plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
+ax2 = fig2.add_subplot(111)
+ax2.plot(fit_x, fit_dy, color='r')
 ax2.fill_between(fit_x, plot_fit_dy_lower, plot_fit_dy_upper, facecolor='r', edgecolor='None', alpha=0.2)
 ax2.set_xlim(0.5, 1.1)
 fig2.savefig(save_file2)

@@ -78,6 +78,7 @@ from mkgp.core.utils import diagonalize
 score = r2_score(score_y, train_y, multioutput='raw_values')
 print(f'R2 score: {score}')
 
+
 gpr.GPRFit(fit_x, hsgp_flag=True)
 fit_y, fit_ye, fit_dy, fit_dye = gpr.get_gp_results()
 nonoise_fit_y, nonoise_fit_ye, nonoise_fit_dy, nonoise_fit_dye = gpr.get_gp_results(noise_flag=False)
@@ -92,10 +93,10 @@ save_file1 = plot_save_directory / 'mkgp_1d_fit_test.png'
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
 plot_train_ye = plot_sigma * train_ye
-ax1.errorbar(train_x.flatten(), train_y.flatten(), yerr=plot_train_ye.flatten(), ls='', marker='.', color='k')
-ax1.plot(fit_x.flatten(), fit_y.flatten(), color='r')
 plot_fit_y_lower = fit_y - plot_sigma * fit_ye
 plot_fit_y_upper = fit_y + plot_sigma * fit_ye
+ax1.errorbar(train_x.flatten(), train_y.flatten(), yerr=plot_train_ye.flatten(), ls='', marker='.', color='k')
+ax1.plot(fit_x.flatten(), fit_y.flatten(), color='r')
 ax1.fill_between(fit_x.flatten(), plot_fit_y_lower.flatten(), plot_fit_y_upper.flatten(), facecolor='r', edgecolor='None', alpha=0.2)
 ax1.set_xlim(0.5, 1.1)
 fig1.savefig(save_file1)
@@ -104,10 +105,10 @@ fig1.savefig(save_file1)
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'mkgp_1d_derivative_test.png'
 fig2 = plt.figure(2)
-ax2 = fig2.add_subplot(111)
-ax2.plot(fit_x.flatten(), fit_dy.flatten(), color='r')
 plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
 plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
+ax2 = fig2.add_subplot(111)
+ax2.plot(fit_x.flatten(), fit_dy.flatten(), color='r')
 ax2.fill_between(fit_x.flatten(), plot_fit_dy_lower.flatten(), plot_fit_dy_upper.flatten(), facecolor='r', edgecolor='None', alpha=0.2)
 ax2.set_xlim(0.5, 1.1)
 fig2.savefig(save_file2)
