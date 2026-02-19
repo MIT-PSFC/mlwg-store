@@ -60,3 +60,7 @@ python <script_name>
 
 ### Additional instructions for tutorial 2
 pixi add optuna
+
+### Additional instructions for tutorial 3
+pixi add gpytorch
+pixi add --pypi mkgp
