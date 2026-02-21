@@ -5,7 +5,7 @@ import torch
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 
-from mkgp.core.kernels import RQ_Kernel
+from mkgp.core.kernels import SE_Kernel
 from mkgp.core.routines import GaussianProcess
 
 # Setup input data
@@ -22,23 +22,19 @@ train_ye = df[output_error_vars].to_numpy()
 fit_x = np.atleast_2d(np.linspace(0.5, 1.1, 101)).T
 
 # Define a kernel to fit the data itself
-#     Rational quadratic kernel is usually robust enough for general fitting
-kernel = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
+kernel = SE_Kernel(1.0e0, 1.0e-1)
 
 # This is only necessary if using kernel restart option on the data fitting
-kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1, 1.0e0], [1.0e1, 1.0e0, 1.0e1]])
+kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1], [1.0e1, 1.0e0]])
 
 # Define a kernel to fit the given y-errors, needed for rigourous estimation of fit error including data error
-#     Typically a simple rational quadratic kernel is sufficient given a high regularization parameter (specified later)
-#     Here, the RQ kernel is summed with a noise kernel for extra robustness and to demonstrate how to use operator kernels
-error_kernel = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
+error_kernel = SE_Kernel(1.0e0, 1.0e-1)
 
 # Again, this is only necessary if using kernel restart option on the error fitting
-error_kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1, 1.0e0], [1.0e1, 1.0e0, 1.0e1]])
+error_kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1], [1.0e1, 1.0e0]])
 
 
 # GPR fit rigourously accounting only for y-errors (this is the recommended option)
-#     Procedure is nearly identical to above, except for the addition of an error kernel
 gpr = GaussianProcess()
 
 #     Define the kernel and regularization parameter to be used in the data fitting routine
@@ -71,10 +67,9 @@ gpr.set_search_parameters(epsilon=1.0e-2, method='adam', spars=[1.0e-1, 0.9, 0.9
 gpr.set_error_search_parameters(epsilon=1.0e-1, method='adam', spars=[1.0e-1, 0.9, 0.999])
 
 #     Perform the fit with kernel restarts
-gpr.GPRFit(train_x, hsgp_flag=True, nrestarts=3)
+gpr.GPRFit(train_x, hsgp_flag=True, nrestarts=5)
 fit_lml = gpr.get_gp_lml()
 score_y, score_yv, score_dy, score_dyv = gpr.get_gp_results(rtn_cov=True)
-from mkgp.core.utils import diagonalize
 score = r2_score(score_y, train_y, multioutput='raw_values')
 print(f'R2 score: {score}')
 
@@ -85,7 +80,6 @@ nonoise_fit_y, nonoise_fit_ye, nonoise_fit_dy, nonoise_fit_dye = gpr.get_gp_resu
 
 plot_save_directory = Path('./mkgp_1d_output')
 plot_save_directory.mkdir(parents=True, exist_ok=True)
-plot_num_samples = 10
 plot_sigma = 2.0
 
 # Raw data with GPR fit and error, only accounting for y-errors
@@ -100,7 +94,6 @@ ax1.plot(fit_x.flatten(), fit_y.flatten(), color='r')
 ax1.fill_between(fit_x.flatten(), plot_fit_y_lower.flatten(), plot_fit_y_upper.flatten(), facecolor='r', edgecolor='None', alpha=0.2)
 ax1.set_xlim(0.5, 1.1)
 fig1.savefig(save_file1)
-#plt.close(fig1)
 
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'mkgp_1d_derivative_test.png'
@@ -112,6 +105,5 @@ ax2.plot(fit_x.flatten(), fit_dy.flatten(), color='r')
 ax2.fill_between(fit_x.flatten(), plot_fit_dy_lower.flatten(), plot_fit_dy_upper.flatten(), facecolor='r', edgecolor='None', alpha=0.2)
 ax2.set_xlim(0.5, 1.1)
 fig2.savefig(save_file2)
-#plt.close(fig2)
 
 plt.show()

@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import gpytorch
 from sklearn.metrics import r2_score
+
 import matplotlib.pyplot as plt
 
 
@@ -78,14 +79,11 @@ print(f'R2 score: {score}')
 fit_posterior = likelihood(model(tensor_fit_x))
 fit_y = fit_posterior.mean.detach().numpy()
 fit_ye = np.sqrt(fit_posterior.variance.detach().numpy())
-#fit_dy = torch.autograd.grad(fit_posterior.mean.sum(), tensor_fit_x)[0].detach().numpy()
-#fit_dye = np.sqrt(torch.autograd.grad(fit_posterior.variance.sum(), tensor_fit_x)[0].detach().numpy())
 fit_dy = torch.autograd.functional.jacobian(lambda x: likelihood(model(x)).mean.sum(), tensor_fit_x)
 fit_dye = torch.autograd.functional.jacobian(lambda x: likelihood(model(x)).variance.sum(), tensor_fit_x)
 
 plot_save_directory = Path('./gpytorch_2d_output')
 plot_save_directory.mkdir(parents=True, exist_ok=True)
-plot_num_samples = 10
 plot_sigma = 2.0
 
 # Raw data with GPR fit and error, only accounting for y-errors
@@ -102,15 +100,14 @@ ax1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.s
 ax1.set_xlim(0.0, 1.0)
 ax1.set_ylim(0.5, 1.1)
 fig1.savefig(save_file1)
-#plt.close(fig1)
 
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'gpytorch_2d_derivative_test.png'
 fig2 = plt.figure(2)
-plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
-plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
 ax2_1 = fig2.add_subplot(121, projection='3d')
 ax2_2 = fig2.add_subplot(122, projection='3d')
+plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
+plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), fit_dy[:, 0].reshape(mesh_1.shape), color='r', alpha=0.5)
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), plot_fit_dy_lower[:, 0].reshape(mesh_1.shape), facecolor='r', edgecolor='None', alpha=0.2)
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), plot_fit_dy_upper[:, 0].reshape(mesh_1.shape), facecolor='r', edgecolor='None', alpha=0.2)
@@ -122,6 +119,5 @@ ax2_1.set_ylim(0.5, 1.1)
 ax2_2.set_xlim(0.0, 1.0)
 ax2_2.set_ylim(0.5, 1.1)
 fig2.savefig(save_file2)
-#plt.close(fig2)
 
 plt.show()

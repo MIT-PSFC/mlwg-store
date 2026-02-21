@@ -77,14 +77,11 @@ print(f'R2 score: {score}')
 fit_posterior = likelihood(model(tensor_fit_x))
 fit_y = fit_posterior.mean.detach().numpy()
 fit_ye = np.sqrt(fit_posterior.variance.detach().numpy())
-#fit_dy = torch.autograd.grad(fit_posterior.mean.sum(), tensor_fit_x)[0].detach().numpy()
-#fit_dye = np.sqrt(torch.autograd.grad(fit_posterior.variance.sum(), tensor_fit_x)[0].detach().numpy())
 fit_dy = torch.autograd.functional.jacobian(lambda x: likelihood(model(x)).mean.sum(), tensor_fit_x)
 fit_dye = torch.autograd.functional.jacobian(lambda x: likelihood(model(x)).variance.sum(), tensor_fit_x)
 
 plot_save_directory = Path('./gpytorch_1d_output')
 plot_save_directory.mkdir(parents=True, exist_ok=True)
-plot_num_samples = 10
 plot_sigma = 2.0
 
 # Raw data with GPR fit and error, only accounting for y-errors
@@ -99,18 +96,16 @@ ax1.plot(fit_x, fit_y, color='r')
 ax1.fill_between(fit_x, plot_fit_y_lower, plot_fit_y_upper, facecolor='r', edgecolor='None', alpha=0.2)
 ax1.set_xlim(0.5, 1.1)
 fig1.savefig(save_file1)
-#plt.close(fig1)
 
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'gpytorch_1d_derivative_test.png'
 fig2 = plt.figure(2)
+ax2 = fig2.add_subplot(111)
 plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
 plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
-ax2 = fig2.add_subplot(111)
 ax2.plot(fit_x, fit_dy, color='r')
 ax2.fill_between(fit_x, plot_fit_dy_lower, plot_fit_dy_upper, facecolor='r', edgecolor='None', alpha=0.2)
 ax2.set_xlim(0.5, 1.1)
 fig2.savefig(save_file2)
-#plt.close(fig2)
 
 plt.show()

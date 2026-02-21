@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import r2_score
+
 import matplotlib.pyplot as plt
 
-from mkgp.core.kernels import RQ_Kernel, ND_Sum_Kernel
+from mkgp.core.kernels import SE_Kernel, ND_Sum_Kernel
 from mkgp.core.routines import GaussianProcess
 
 # Setup input data
@@ -23,34 +24,30 @@ mesh_1, mesh_2 = np.meshgrid(np.linspace(0.0, 1.0, 31), np.linspace(0.5, 1.1, 51
 fit_x = np.stack([mesh_1.flatten(), mesh_2.flatten()], axis=1)
 
 # Define a kernel to fit the data itself
-#     Rational quadratic kernel is usually robust enough for general fitting
-kernel_1 = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
-kernel_2 = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
+kernel_1 = SE_Kernel(1.0e0, 1.0e-1)
+kernel_2 = SE_Kernel(1.0e0, 1.0e-1)
 kernel = ND_Sum_Kernel(kernel_1, kernel_2)
 
 # This is only necessary if using kernel restart option on the data fitting
-kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1, 1.0e0, 1.0e-1, 1.0e-1, 1.0e0], [1.0e1, 1.0e0, 1.0e1, 1.0e1, 1.0e0, 1.0e1]])
+kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e0, 1.0e-1, 1.0e-1], [1.0e1, 1.0e1, 1.0e1, 1.0e0]])
 
 # Define a kernel to fit the given y-errors, needed for rigourous estimation of fit error including data error
-#     Typically a simple rational quadratic kernel is sufficient given a high regularization parameter (specified later)
-#     Here, the RQ kernel is summed with a noise kernel for extra robustness and to demonstrate how to use operator kernels
-error_kernel_1 = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
-error_kernel_2 = RQ_Kernel(1.0e-1, 1.0e0, 5.0e0)
+error_kernel_1 = SE_Kernel(1.0e0, 1.0e-1)
+error_kernel_2 = SE_Kernel(1.0e0, 1.0e-1)
 error_kernel = ND_Sum_Kernel(error_kernel_1, error_kernel_2)
 
 # Again, this is only necessary if using kernel restart option on the error fitting
-error_kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e-1, 1.0e0, 1.0e-1, 1.0e-1, 1.0e0], [1.0e1, 1.0e0, 1.0e1, 1.0e1, 1.0e0, 1.0e1]])
+error_kernel_hyppar_bounds = np.atleast_2d([[1.0e-1, 1.0e0, 1.0e-1, 1.0e-1], [1.0e1, 1.0e1, 1.0e1, 1.0e0]])
 
 
 # GPR fit rigourously accounting only for y-errors (this is the recommended option)
-#     Procedure is nearly identical to above, except for the addition of an error kernel
 gpr = GaussianProcess()
 
 #     Define the kernel and regularization parameter to be used in the data fitting routine
 gpr.set_kernel(
     kernel=kernel,
     kbounds=kernel_hyppar_bounds,
-    regpar=2.0
+    regpar=1.0
 )
 
 #     Define the kernel and regularization parameter to be used in the error fitting routine
@@ -72,7 +69,7 @@ gpr.set_raw_data(
 )
 
 #     Define the search criteria for data fitting routine and error fitting routine
-gpr.set_search_parameters(epsilon=1.0e-1, method='adam', spars=[1.0e-1, 0.5, 0.9])
+gpr.set_search_parameters(epsilon=1.0e-2, method='adam', spars=[1.0e-1, 0.5, 0.9])
 gpr.set_error_search_parameters(epsilon=1.0e-1, method='adam', spars=[1.0e-1, 0.5, 0.9])
 
 #     Perform the fit with kernel restarts
@@ -89,7 +86,6 @@ nonoise_fit_y, nonoise_fit_ye, nonoise_fit_dy, nonoise_fit_dye = gpr.get_gp_resu
 
 plot_save_directory = Path('./mkgp_2d_output')
 plot_save_directory.mkdir(parents=True, exist_ok=True)
-plot_num_samples = 10
 plot_sigma = 2.0
 
 # Raw data with GPR fit and error, only accounting for y-errors
@@ -106,15 +102,14 @@ ax1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.s
 ax1.set_xlim(0.0, 1.0)
 ax1.set_ylim(0.5, 1.1)
 fig1.savefig(save_file1)
-#plt.close(fig1)
 
 # Derivative of GPR fit and error, only accounting for y-errors
 save_file2 = plot_save_directory / 'mkgp_2d_derivative_test.png'
 fig2 = plt.figure(2)
-plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
-plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
 ax2_1 = fig2.add_subplot(121, projection='3d')
 ax2_2 = fig2.add_subplot(122, projection='3d')
+plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
+plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), fit_dy[:, 0].reshape(mesh_1.shape), color='r', alpha=0.5)
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), plot_fit_dy_lower[:, 0].reshape(mesh_1.shape), facecolor='r', edgecolor='None', alpha=0.2)
 ax2_1.plot_surface(fit_x[:, 0].reshape(mesh_1.shape), fit_x[:, 1].reshape(mesh_2.shape), plot_fit_dy_upper[:, 0].reshape(mesh_1.shape), facecolor='r', edgecolor='None', alpha=0.2)
@@ -126,6 +121,5 @@ ax2_1.set_ylim(0.5, 1.1)
 ax2_2.set_xlim(0.0, 1.0)
 ax2_2.set_ylim(0.5, 1.1)
 fig2.savefig(save_file2)
-#plt.close(fig2)
 
 plt.show()
