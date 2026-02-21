@@ -42,3 +42,4 @@ pip-delete-this-directory.txt
 # Custom generated artifacts
 Tutorial_1/Neural_Operator/Default_Results/
 Tutorial_1/Neural_Operator/Results/
+Tutorial_3/*_output/
