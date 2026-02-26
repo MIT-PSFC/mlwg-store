@@ -129,7 +129,7 @@ ax2.plot(scan.flatten(), scan_fit_y.flatten(), color='r', label='Surrogate')
 ax2.fill_between(scan.flatten(), plot_fit_y_lower, plot_fit_y_upper, facecolor='r', edgecolor='None', alpha=0.2)
 ax2.set_xlim(smin, smax)
 ax2.legend(loc='best')
-fig2.savefig(save_file2)
+#fig2.savefig(save_file2)
 plt.close(fig2)
 
 
