@@ -88,33 +88,33 @@ norm = Normalize(vmin=-plot_num_samples+1, vmax=plot_num_samples-1, clip=True)
 mapper = cm.ScalarMappable(norm=norm, cmap='GnBu')
 
 # Raw data with GPR fit and error, only accounting for y-errors
-save_file3 = plot_save_directory / 'gpytorch_1d_fit_test_sampling.png'
-fig3 = plt.figure(1)
-ax3 = fig3.add_subplot(111)
+save_file1 = plot_save_directory / 'gpytorch_1d_fit_test_sampling.png'
+fig1 = plt.figure(1)
+ax1 = fig1.add_subplot(111)
 plot_train_ye = plot_sigma * train_ye
 plot_fit_y_lower = fit_y - plot_sigma * fit_ye
 plot_fit_y_upper = fit_y + plot_sigma * fit_ye
-ax3.errorbar(train_x, train_y, yerr=plot_train_ye, ls='', marker='.', color='k')
-ax3.plot(fit_x, fit_y, color='r')
-ax3.fill_between(fit_x, plot_fit_y_lower, plot_fit_y_upper, facecolor='r', edgecolor='None', alpha=0.2)
+ax1.errorbar(train_x, train_y, yerr=plot_train_ye, ls='', marker='.', color='k')
+ax1.plot(fit_x, fit_y, color='r')
+ax1.fill_between(fit_x, plot_fit_y_lower, plot_fit_y_upper, facecolor='r', edgecolor='None', alpha=0.2)
 for ii in range(plot_num_samples):
     pc = mapper.to_rgba([ii])
-    ax3.plot(fit_x, fit_y_samples[ii].detach().numpy(), lw=1, c=pc)
-ax3.set_xlim(0.5, 1.1)
-fig3.savefig(save_file3)
+    ax1.plot(fit_x, fit_y_samples[ii].detach().numpy(), lw=1, c=pc)
+ax1.set_xlim(0.5, 1.1)
+fig1.savefig(save_file1)
 
 # Derivative of GPR fit and error, only accounting for y-errors
-save_file4 = plot_save_directory / 'gpytorch_1d_derivative_test_sampling.png'
-fig4 = plt.figure(2)
-ax4 = fig4.add_subplot(111)
+save_file2 = plot_save_directory / 'gpytorch_1d_derivative_test_sampling.png'
+fig2 = plt.figure(2)
+ax2 = fig2.add_subplot(111)
 plot_fit_dy_lower = fit_dy - plot_sigma * fit_dye
 plot_fit_dy_upper = fit_dy + plot_sigma * fit_dye
-ax4.plot(fit_x, fit_dy, color='r')
-ax4.fill_between(fit_x, plot_fit_dy_lower, plot_fit_dy_upper, facecolor='r', edgecolor='None', alpha=0.2)
+ax2.plot(fit_x, fit_dy, color='r')
+ax2.fill_between(fit_x, plot_fit_dy_lower, plot_fit_dy_upper, facecolor='r', edgecolor='None', alpha=0.2)
 for ii in range(plot_num_samples):
     pc = mapper.to_rgba([ii])
-    ax4.plot(fit_x, np.gradient(fit_y_samples[ii].detach().numpy(), fit_x), lw=1, c=pc)
-ax4.set_xlim(0.5, 1.1)
-fig4.savefig(save_file4)
+    ax2.plot(fit_x, np.gradient(fit_y_samples[ii].detach().numpy(), fit_x), lw=1, c=pc)
+ax2.set_xlim(0.5, 1.1)
+fig2.savefig(save_file2)
 
 plt.show()
