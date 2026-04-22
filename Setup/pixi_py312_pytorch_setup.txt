@@ -66,4 +66,4 @@ pixi add gpytorch
 pixi add --pypi mkgp
 
 ### Additional instructions for tutorial 5
-pixi add mlwg --pypi --git ssh://git@github.com/allen-adastra/mlwg-ssm.git
+pixi add state_space_model --pypi --git ssh://git@github.com/allen-adastra/mlwg-ssm.git
