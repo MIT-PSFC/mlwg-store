@@ -64,3 +64,6 @@ pixi add optuna
 ### Additional instructions for tutorial 3
 pixi add gpytorch
 pixi add --pypi mkgp
+
+### Additional instructions for tutorial 5
+pixi add mlwg --pypi --git ssh://git@github.com/allen-adastra/mlwg-ssm.git

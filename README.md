@@ -6,9 +6,10 @@ This repository contains the slides, data, and code shared for the Machine Learn
 - T2. _An Introduction to BO with Optuna_. EdD Zapata Cornejo.
 - T3. _Gaussian Processes_. Aaron Ho.
 - T4. _Generative modeling using Energy-Based models_. Phil Travis.
+- T5. _Modelling with States, Actions and Observations_. Allen Wang.
 
 # Join the mailing list
-Send a mail to machine_learning-join@lists.psfc.mit.edu
+Send a mail with "subscribe" in the subject line to machine_learning-join@lists.psfc.mit.edu
 
 # Setup
 The "Setup" folder contains instructions for our recommended environment for launching the scripts in this repository, primarily to lower the entry barrier for newcomers. However, check out each tutorial, and feel free to use your own favourite environment / package managers (though we may be unable to help you debug in that case)!
